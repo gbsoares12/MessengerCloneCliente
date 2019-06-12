@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -313,9 +314,11 @@ public class MenuPrincipal extends javax.swing.JFrame implements Observador {
             }
         }
         
-        if(clienteSelecionado != null){
+        if((clienteSelecionado != null) && clienteSelecionado.isStatus()){
             TelaChat telaChat = new TelaChat(clienteSelecionado);
             telaChat.setVisible(true);
+        }else{
+            JOptionPane.showMessageDialog(null, "O contato está offline, tente outro!");
         }
         
         System.out.println("Obj do cliente selecionado: " + clienteSelecionado);
