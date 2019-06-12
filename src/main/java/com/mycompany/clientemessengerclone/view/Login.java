@@ -5,16 +5,23 @@
  */
 package com.mycompany.clientemessengerclone.view;
 
+import com.mycompany.clientemessengerclone.controller.ComunicacaoServidorImpl;
+import com.mycompany.clientemessengerclone.controller.Observador;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Gabriel Soares
  */
-public class Login extends javax.swing.JFrame {
+public class Login extends javax.swing.JFrame implements Observador {
 
     private static Login instance;
+    private ComunicacaoServidorImpl controller;
 
     public static Login getInstance() {
         if (instance == null) {
@@ -30,6 +37,8 @@ public class Login extends javax.swing.JFrame {
     public Login() {
         initComponents();
         this.setLocationRelativeTo(null);
+        this.controller = ComunicacaoServidorImpl.getInstance();
+        this.controller.addObservador(this);
     }
 
     /**
@@ -51,6 +60,7 @@ public class Login extends javax.swing.JFrame {
         jSeparator2 = new javax.swing.JSeparator();
         jButtonEntrar = new javax.swing.JButton();
         jButtonRegistrar = new javax.swing.JButton();
+        jButtonConfiguracao = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -59,7 +69,11 @@ public class Login extends javax.swing.JFrame {
 
         jLabel2.setText("Email:");
 
+        jTextFieldEmailLogin.setText("gbsoares12@gmail.com");
+
         jLabel3.setText("Senha:");
+
+        jTextFieldSenhaLogin.setText("testesenha");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -103,6 +117,13 @@ public class Login extends javax.swing.JFrame {
             }
         });
 
+        jButtonConfiguracao.setText("Configuração");
+        jButtonConfiguracao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonConfiguracaoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -112,21 +133,26 @@ public class Login extends javax.swing.JFrame {
                 .addContainerGap())
             .addComponent(jSeparator2)
             .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jButtonConfiguracao)
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButtonRegistrar)
-                .addGap(71, 71, 71)
-                .addComponent(jButtonEntrar)
-                .addGap(102, 102, 102))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(133, 133, 133)
-                .addComponent(jLabel1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButtonRegistrar)
+                        .addGap(34, 34, 34)
+                        .addComponent(jButtonEntrar, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(118, 118, 118))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(132, 132, 132))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(23, 23, 23)
+                .addComponent(jButtonConfiguracao)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -145,9 +171,18 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonEntrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEntrarActionPerformed
-        MenuPrincipal menuPrincipal = MenuPrincipal.getInstance();
-        menuPrincipal.setVisible(true);
-        this.setVisible(false);
+
+        try {
+            if (this.controller.entrar(jTextFieldEmailLogin.getText(), jTextFieldSenhaLogin.getText())) {
+                MenuPrincipal menuPrincipal = MenuPrincipal.getInstance();
+                menuPrincipal.setVisible(true);
+                this.setVisible(false);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+
     }//GEN-LAST:event_jButtonEntrarActionPerformed
 
     private void jButtonRegistrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRegistrarActionPerformed
@@ -155,6 +190,12 @@ public class Login extends javax.swing.JFrame {
         menuCadastro.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_jButtonRegistrarActionPerformed
+
+    private void jButtonConfiguracaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConfiguracaoActionPerformed
+        MenuConfiguracao menuConfig = MenuConfiguracao.getInstance();
+        menuConfig.setVisible(true);
+        this.setVisible(false);
+    }//GEN-LAST:event_jButtonConfiguracaoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -193,6 +234,7 @@ public class Login extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonConfiguracao;
     private javax.swing.JButton jButtonEntrar;
     private javax.swing.JButton jButtonRegistrar;
     private javax.swing.JLabel jLabel1;
@@ -204,4 +246,16 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JTextField jTextFieldEmailLogin;
     private javax.swing.JTextField jTextFieldSenhaLogin;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void notificaMensagemRespostaServidor(String responseDoServer) {
+        JOptionPane.showMessageDialog(null, responseDoServer);
+    }
+
+    @Override
+    public void exibeInfoClienteLogado() {}
+
+    @Override
+    public void atualizarListaContato() {}
+
 }

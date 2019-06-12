@@ -5,12 +5,20 @@
  */
 package com.mycompany.clientemessengerclone.view;
 
+import com.mycompany.clientemessengerclone.controller.ComunicacaoServidorController;
+import com.mycompany.clientemessengerclone.controller.ComunicacaoServidorImpl;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sound.midi.ControllerEventListener;
+
 /**
  *
  * @author Gabriel Soares
  */
 public class MenuCadastro extends javax.swing.JFrame {
 
+    private ComunicacaoServidorImpl controller;
     private static MenuCadastro instance;
 
     public static MenuCadastro getInstance() {
@@ -27,6 +35,7 @@ public class MenuCadastro extends javax.swing.JFrame {
     public MenuCadastro() {
         initComponents();
         this.setLocationRelativeTo(null);
+        this.controller = ComunicacaoServidorImpl.getInstance();
     }
 
     /**
@@ -161,9 +170,14 @@ public class MenuCadastro extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCadastrarActionPerformed
-        Login menuLogin = Login.getInstance();;
-        menuLogin.setVisible(true);
-        this.setVisible(false);
+        try {
+            this.controller.registrar(jTextFieldNome.getText(), jTextFieldEmail.getText(), jTextFieldSenha.getText());
+            Login menuLogin = Login.getInstance();
+            menuLogin.setVisible(true);
+            this.setVisible(false);
+        } catch (IOException ex) {
+            Logger.getLogger(MenuCadastro.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButtonCadastrarActionPerformed
 
     private void jButtonVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVoltarActionPerformed

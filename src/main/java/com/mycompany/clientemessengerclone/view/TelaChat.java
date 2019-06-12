@@ -5,17 +5,27 @@
  */
 package com.mycompany.clientemessengerclone.view;
 
+import com.mycompany.clientemessengerclone.controller.ComunicacaoServidorImpl;
+import com.mycompany.clientemessengerclone.model.Cliente;
+
 /**
  *
  * @author Gabriel Soares
  */
 public class TelaChat extends javax.swing.JFrame {
 
+    private final Cliente cliContato;
+    private ComunicacaoServidorImpl controller;
     /**
      * Creates new form TelaChat
+     * @param cliContato
      */
-    public TelaChat() {
+    public TelaChat(Cliente cliContato) {
         initComponents();
+        this.setLocationRelativeTo(null);
+        this.cliContato = cliContato;
+        this.controller = ComunicacaoServidorImpl.getInstance();
+        this.jLabelNomeContato.setText(cliContato.getNome());
     }
 
     /**
@@ -35,7 +45,7 @@ public class TelaChat extends javax.swing.JFrame {
         jButtonVoltar = new javax.swing.JButton();
         jLabelNomeContato = new javax.swing.JLabel();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jTextAreaConversa.setColumns(20);
         jTextAreaConversa.setRows(5);
@@ -45,6 +55,11 @@ public class TelaChat extends javax.swing.JFrame {
         jButtonEnviar.setText("Enviar");
 
         jButtonVoltar.setText("Voltar");
+        jButtonVoltar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonVoltarActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -104,6 +119,10 @@ public class TelaChat extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButtonVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVoltarActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_jButtonVoltarActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -130,13 +149,6 @@ public class TelaChat extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(TelaChat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new TelaChat().setVisible(true);
-            }
-        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
