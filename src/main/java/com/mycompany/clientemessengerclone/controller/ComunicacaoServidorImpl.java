@@ -12,6 +12,7 @@ import com.mycompany.clientemessengerclone.model.ServidorInfo;
 import com.mycompany.clientemessengerclone.model.SessaoCliente;
 import com.mycompany.clientemessengerclone.model.VerificadorConexaoCliente;
 import com.mycompany.clientemessengerclone.utils.Desconectar;
+import com.mycompany.clientemessengerclone.view.MenuPrincipal;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,6 +20,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -178,7 +180,6 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
 
             Cliente cli = gson.fromJson(in.readLine(), Cliente.class);
             this.sessaoAtual.setCliente(cli);
-            exibeClienteInfoLogado();
             atualizaListaContato();
 
             if (in.readLine().equalsIgnoreCase("200")) {
@@ -209,10 +210,32 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
         }
     }
 
+    public void exibeMsg(String msg) {
+        for (Observador obs : observadores) {
+            obs.exibeMsg(msg);
+        }
+    }
+
     public void exibeClienteInfoLogado() {
         for (Observador obs : observadores) {
             obs.exibeInfoClienteLogado();
         }
+    }
+
+    public void exibeClienteBuscado(String nome, String email) {
+        for (Observador obs : observadores) {
+            obs.exibeUserBuscado(nome, email);
+        }
+    }
+
+    public int escolhaAdicionar() {
+        int escolha = -1;
+        for (Observador obs : observadores) {
+            if (obs.getClass() == MenuPrincipal.class) {
+                escolha = obs.escolhaAdicionar();
+            }
+        }
+        return escolha;
     }
 
     public void atualizaListaContato() {
@@ -221,112 +244,126 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
         }
     }
 
-    /*
-       static public void buscarUser() throws IOException {
+    public void buscarUser(String email) throws IOException {
         Gson gson = new Gson();
         Socket conn = null;
         PrintWriter out = null;
         BufferedReader in = null;
-        String json = "{\"email\":\"test123123123@gmail.com\"}";
+        String json = "{\"email\":\"" + email + "\"}";
         try {
-            conn = new Socket("192.168.2.6", 56000);
+            conn = new Socket(this.servInfo.getIp(), servInfo.getPorta());
             out = new PrintWriter(conn.getOutputStream(), true);
             out.println("BuscaUser");
             out.println(json);
             out.println("fimbusca");
             in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            Cliente cliBuscado = gson.fromJson(in.readLine(), Cliente.class);
-            System.out.println("USUÁRIO PESQUISADO: " + cliBuscado);
+            String primeiraResposta = in.readLine();
+            if (!primeiraResposta.equalsIgnoreCase("404")) {
+                Cliente cliBuscado = gson.fromJson(primeiraResposta, Cliente.class);
+                exibeClienteBuscado(cliBuscado.getNome(), cliBuscado.getEmail());
+                //LOGICA DE ADD O USUARIO BUSCADO
+                if (escolhaAdicionar() == 0) {
+                    boolean jaCadastrado = false;
+                    for (Cliente clienteDaListaContato : this.sessaoAtual.getCliente().getListaContatos()) {
+                        if (clienteDaListaContato.getEmail().equalsIgnoreCase(cliBuscado.getEmail())) {
+                            jaCadastrado = true;
+                        }
+                    }
+                    if (!jaCadastrado) {
+                        this.sessaoAtual.getCliente().addContato(cliBuscado);
+                        Desconectar.fechar(in, out, conn);
 
-            //LOGICA DE ADD O USUARIO BUSCADO
-            if (JOptionPane.showInputDialog("deseja adicionar o usuario? 1 sim 2 nao").equalsIgnoreCase("1")) {
-
-                getCliSessao().addContato(cliBuscado);
-                fechar(in, out, conn);
-                System.out.println("OBJ DO CLIENTE SESSAO: " + getCliSessao());
-
-                //NOVA CONEXAO PARA DAR O MERGE NO CLIENTE SALVO NO BANCO
-                conn = new Socket("192.168.2.6", 56000);
-                out = new PrintWriter(conn.getOutputStream(), true);
-                out.println("AddUser");
-                out.println(gson.toJson(getCliSessao()));
-                out.println("fimadd");
-                in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                setCliSessao(gson.fromJson(in.readLine(), Cliente.class));
-
-                //O CLIENTE JA ESTÁ COM A LISTA ATUALIZADA DEPOIS DE ADICIONAR UM USUÁRIO
-                System.out.println("TESTE SESSAO DO CLIENTE: " + getCliSessao());
-            } else if (in.readLine().equalsIgnoreCase("404")) {
-                System.out.println("usuario não encontrado");
+                        //NOVA CONEXAO PARA DAR O MERGE NO CLIENTE SALVO NO BANCO
+                        conn = new Socket(this.servInfo.getIp(), servInfo.getPorta());
+                        out = new PrintWriter(conn.getOutputStream(), true);
+                        out.println("AddUser");
+                        out.println(gson.toJson(this.sessaoAtual.getCliente()));
+                        out.println("fimadd");
+                        in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                        this.sessaoAtual.setCliente(gson.fromJson(in.readLine(), Cliente.class));
+                        exibeMsg("Usuário adicionado!");
+                        atualizaListaContato();
+                    } else {
+                        exibeMsg("Usuário já cadastrado na sua lista de contato!");
+                    }
+                }
+            } else {
+                exibeMsg("Usuário não encontrado");
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            fechar(in, out, conn);
+            Desconectar.fechar(in, out, conn);
         }
     }
 
-    static public void editar() throws IOException {
+    public void editar(String nome, String senha) throws IOException {
         Socket conn = null;
         PrintWriter out = null;
         BufferedReader in = null;
         Gson gson = new Gson();
         try {
-            conn = new Socket("192.168.2.6", 56000);
-            Cliente cliEditado = getCliSessao();
-            cliEditado.setNome("Beltrano");
+            conn = new Socket(this.servInfo.getIp(), servInfo.getPorta());
+            
+            Cliente cliEditado = this.sessaoAtual.getCliente();
+            cliEditado.setNome(nome);
+            cliEditado.setSenha(senha);
             out = new PrintWriter(conn.getOutputStream(), true);
             out.println("EditarUser");
             out.println(gson.toJson(cliEditado));
             out.println("fimeditar");
             in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             Cliente cli = gson.fromJson(in.readLine(), Cliente.class);
-            setCliSessao(cli);
+            this.sessaoAtual.setCliente(cli);
+            exibeMsg("Dados atualizados com sucesso!");
             //Cliente da sessão com as informações depois de editado
-            System.out.println(getCliSessao());
+            exibeClienteInfoLogado();
+            
         } catch (Exception e) {
-            System.out.println("Erro ao editar o Usuário!");
+            exibeMsg("Erro ao editar o Usuário!");
             e.printStackTrace();
         } finally {
-            fechar(in, out, conn);
+            Desconectar.fechar(in, out, conn);
         }
     }
 
-    static public void removerUser() throws IOException {
+    public void removerUser(String email) throws IOException {
         Socket conn = null;
         PrintWriter out = null;
         BufferedReader in = null;
         Gson gson = new Gson();
         try {
-            conn = new Socket("192.168.2.6", 56000);
-            Cliente cliAux = getCliSessao();
+            conn = new Socket(this.servInfo.getIp(), servInfo.getPorta());
+            Cliente cliAux = this.sessaoAtual.getCliente();
             List<Cliente> listaContadosClienteSessao = cliAux.getListaContatos();
-
+            boolean encontrouNosContatos = false;
             //encontra o usuário pelo nome que será removido.
             Cliente cliARemover = null;
             for (Cliente cliente : listaContadosClienteSessao) {
-                if (cliente.getEmail().equalsIgnoreCase("test123123123@gmail.com")) {
+                if (cliente.getEmail().equalsIgnoreCase(email)) {
                     cliARemover = cliente;
+                    encontrouNosContatos = true;
                 }
             }
-            cliAux.getListaContatos().remove(cliARemover);
-
-            out = new PrintWriter(conn.getOutputStream(), true);
-            out.println("RemoverUser");
-            out.println(gson.toJson(cliAux));
-            out.println("fimremover");
-            in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            Cliente cli = gson.fromJson(in.readLine(), Cliente.class);
-            setCliSessao(cli);
-            //Cliente da sessão com as informações depois de editado
-            System.out.println(getCliSessao());
+            if (encontrouNosContatos) {
+                cliAux.getListaContatos().remove(cliARemover);
+                out = new PrintWriter(conn.getOutputStream(), true);
+                out.println("RemoverUser");
+                out.println(gson.toJson(cliAux));
+                out.println("fimremover");
+                in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                Cliente cli = gson.fromJson(in.readLine(), Cliente.class);
+                this.sessaoAtual.setCliente(cli);
+                exibeMsg("Usuário removido da sua lista de contato!");
+                atualizaListaContato();
+            }else{
+                exibeMsg("Usuário não encontrado!");
+            }
         } catch (Exception e) {
             System.out.println("Erro ao excluir o contato!");
             e.printStackTrace();
         } finally {
-            fechar(in, out, conn);
+            Desconectar.fechar(in, out, conn);
         }
     }
-    
-     */
 }

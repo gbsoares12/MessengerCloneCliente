@@ -282,11 +282,20 @@ public class MenuPrincipal extends javax.swing.JFrame implements Observador {
     }//GEN-LAST:event_jButtonEditarActionPerformed
 
     private void jButtonAdicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAdicionarActionPerformed
-        // TODO add your handling code here:
+
+        try {
+            this.controller.buscarUser(jTextFieldEmailAdicionar.getText());
+        } catch (IOException ex) {
+            Logger.getLogger(MenuPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButtonAdicionarActionPerformed
 
     private void jButtonRemoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRemoverActionPerformed
-        // TODO add your handling code here:
+        try {
+            this.controller.removerUser(jTextFieldEmailRemover.getText());
+        } catch (IOException ex) {
+            Logger.getLogger(MenuPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButtonRemoverActionPerformed
 
     private void jButtonSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSairActionPerformed
@@ -306,21 +315,21 @@ public class MenuPrincipal extends javax.swing.JFrame implements Observador {
         String[] infoContato = resultSelected.split("/");
         String[] emailBruto = infoContato[1].split(":");
         String emailContatoSelecionado = emailBruto[1].trim();
-        
+
         Cliente clienteSelecionado = null;
         for (Cliente cli : this.clienteSessao.getCliente().getListaContatos()) {
-            if(cli.getEmail().equalsIgnoreCase(emailContatoSelecionado)){
+            if (cli.getEmail().equalsIgnoreCase(emailContatoSelecionado)) {
                 clienteSelecionado = cli;
             }
         }
-        
-        if((clienteSelecionado != null) && clienteSelecionado.isStatus()){
+
+        if ((clienteSelecionado != null) && clienteSelecionado.isStatus()) {
             TelaChat telaChat = new TelaChat(clienteSelecionado);
             telaChat.setVisible(true);
-        }else{
+        } else {
             JOptionPane.showMessageDialog(null, "O contato está offline, tente outro!");
         }
-        
+
         System.out.println("Obj do cliente selecionado: " + clienteSelecionado);
     }//GEN-LAST:event_jListContatosMouseClicked
 
@@ -403,14 +412,39 @@ public class MenuPrincipal extends javax.swing.JFrame implements Observador {
         List<String> listaContatoString = new ArrayList<>();
         List<Cliente> listaContatoCliente = this.clienteSessao.getCliente().getListaContatos();
 
+        String status = "/Status: ";
         for (Cliente cliente : listaContatoCliente) {
-            listaContatoString.add("Nome: " + cliente.getNome() + " /Email: " + cliente.getEmail() + " /Status: " + (cliente.isStatus() ? "Online" : "Offline"));
+            String offline = "<html>" + "Nome: " + cliente.getNome() + " /Email: " + cliente.getEmail() + " /Status: <font color=" + "#FF0000" + ">Offline</font></html>";
+            String online = "<html>" + "Nome: " + cliente.getNome() + " /Email: " + cliente.getEmail() + " /Status: <font color=" + "#7CFC00" + ">Online</font></html>";
+            String contatoListaString = "";
+            if (cliente.isStatus()) {
+                contatoListaString = online;
+            } else {
+                contatoListaString = offline;
+            }
+            listaContatoString.add(contatoListaString);
         }
 
         for (String percorrer : listaContatoString) {
             listModel.addElement(percorrer);
         }
         jListContatos.setModel(listModel);
+    }
+
+    @Override
+    public void exibeUserBuscado(String nome, String email) {
+        JOptionPane.showMessageDialog(null, "\nUsuário encontrado!" + "\n|Nome: " + nome + "\n|E-mail: " + email);
+    }
+
+    @Override
+    public int escolhaAdicionar() {
+        Object[] options = {"Confirmar", "Cancelar"};
+        return JOptionPane.showOptionDialog(null, "Clique Confirmar para adicionar", "Informação", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+    }
+
+    @Override
+    public void exibeMsg(String msg) {
+        JOptionPane.showMessageDialog(null, msg);
     }
 
 }

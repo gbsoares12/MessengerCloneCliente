@@ -69,11 +69,13 @@ public class Login extends javax.swing.JFrame implements Observador {
 
         jLabel2.setText("Email:");
 
-        jTextFieldEmailLogin.setText("gbsoares12@gmail.com");
+        jTextFieldEmailLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldEmailLoginActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("Senha:");
-
-        jTextFieldSenhaLogin.setText("testesenha");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -197,6 +199,10 @@ public class Login extends javax.swing.JFrame implements Observador {
         this.setVisible(false);
     }//GEN-LAST:event_jButtonConfiguracaoActionPerformed
 
+    private void jTextFieldEmailLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldEmailLoginActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldEmailLoginActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -257,5 +263,16 @@ public class Login extends javax.swing.JFrame implements Observador {
 
     @Override
     public void atualizarListaContato() {}
+
+    @Override
+    public void exibeUserBuscado(String nome, String email) {}
+
+    @Override
+    public int escolhaAdicionar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void exibeMsg(String msg) {}
 
 }

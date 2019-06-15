@@ -14,4 +14,7 @@ public interface Observador {
     public void notificaMensagemRespostaServidor(String responseDoServer);
     public void exibeInfoClienteLogado();
     public void atualizarListaContato();
+    public void exibeUserBuscado(String nome, String email);
+    public int escolhaAdicionar();
+    public void exibeMsg(String msg);
 }

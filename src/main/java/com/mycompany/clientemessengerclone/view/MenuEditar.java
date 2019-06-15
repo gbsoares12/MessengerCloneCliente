@@ -5,6 +5,12 @@
  */
 package com.mycompany.clientemessengerclone.view;
 
+import com.mycompany.clientemessengerclone.controller.ComunicacaoServidorImpl;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Gabriel Soares
@@ -12,6 +18,7 @@ package com.mycompany.clientemessengerclone.view;
 public class MenuEditar extends javax.swing.JFrame {
 
     private static MenuEditar instance;
+    private ComunicacaoServidorImpl controller;
 
     public static MenuEditar getInstance() {
         if (instance == null) {
@@ -27,6 +34,7 @@ public class MenuEditar extends javax.swing.JFrame {
     public MenuEditar() {
         initComponents();
         this.setLocationRelativeTo(null);
+        this.controller = ComunicacaoServidorImpl.getInstance();
     }
 
     /**
@@ -153,9 +161,20 @@ public class MenuEditar extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonConfirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConfirmarActionPerformed
-        MenuPrincipal menuPrincipal = MenuPrincipal.getInstance();
-        menuPrincipal.setVisible(true);
-        this.setVisible(false);
+        try {
+            if (!jTextFieldNome.getText().equalsIgnoreCase("") && !jTextFieldSenha.getText().equalsIgnoreCase("")) {
+                this.controller.editar(jTextFieldNome.getText(), jTextFieldSenha.getText());
+                MenuPrincipal menuPrincipal = MenuPrincipal.getInstance();
+                menuPrincipal.setVisible(true);
+                this.setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(null, "Necessário preencher as duas informações para editar");
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(MenuEditar.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }//GEN-LAST:event_jButtonConfirmarActionPerformed
 
     private void jButtonVoltarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonVoltarActionPerformed
