@@ -6,16 +6,23 @@
 package com.mycompany.clientemessengerclone.view;
 
 import com.mycompany.clientemessengerclone.controller.ComunicacaoServidorImpl;
+import com.mycompany.clientemessengerclone.controller.Observador;
 import com.mycompany.clientemessengerclone.model.Cliente;
+import com.mycompany.clientemessengerclone.model.SessaoCliente;
 
 /**
  *
  * @author Gabriel Soares
  */
-public class TelaChat extends javax.swing.JFrame {
+public class TelaChat extends javax.swing.JFrame implements Observador{
 
     private final Cliente cliContato;
     private ComunicacaoServidorImpl controller;
+    private String msgTela;
+    private final SessaoCliente sessaoAtual = SessaoCliente.getInstance();
+    private boolean chatJaAberto = false;
+
+
     /**
      * Creates new form TelaChat
      * @param cliContato
@@ -26,6 +33,10 @@ public class TelaChat extends javax.swing.JFrame {
         this.cliContato = cliContato;
         this.controller = ComunicacaoServidorImpl.getInstance();
         this.jLabelNomeContato.setText(cliContato.getNome());
+        this.controller.addObservador(this);
+        msgTela = "";
+        this.jTextAreaConversa.setText(msgTela);
+        chatJaAberto = true;
     }
 
     /**
@@ -40,7 +51,7 @@ public class TelaChat extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextAreaConversa = new javax.swing.JTextArea();
-        jTextField1 = new javax.swing.JTextField();
+        jTextCampoMsg = new javax.swing.JTextField();
         jButtonEnviar = new javax.swing.JButton();
         jButtonVoltar = new javax.swing.JButton();
         jLabelNomeContato = new javax.swing.JLabel();
@@ -53,6 +64,11 @@ public class TelaChat extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTextAreaConversa);
 
         jButtonEnviar.setText("Enviar");
+        jButtonEnviar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonEnviarActionPerformed(evt);
+            }
+        });
 
         jButtonVoltar.setText("Voltar");
         jButtonVoltar.addActionListener(new java.awt.event.ActionListener() {
@@ -69,7 +85,7 @@ public class TelaChat extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1)
-                    .addComponent(jTextField1))
+                    .addComponent(jTextCampoMsg))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(95, Short.MAX_VALUE)
@@ -83,7 +99,7 @@ public class TelaChat extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jTextCampoMsg, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonVoltar)
@@ -123,10 +139,19 @@ public class TelaChat extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButtonVoltarActionPerformed
 
+    private void jButtonEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEnviarActionPerformed
+        this.controller.enviarMsg(this.cliContato, this.jTextCampoMsg.getText());
+        jTextAreaConversa.setText(this.msgTela+="------------------------------\n"+sessaoAtual.getCliente().getNome() +" diz:\n "+ this.jTextCampoMsg.getText()+"\n");
+        jTextCampoMsg.setText("");
+    }//GEN-LAST:event_jButtonEnviarActionPerformed
+    public Cliente getCliContato() {
+        return cliContato;
+    }
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -158,6 +183,36 @@ public class TelaChat extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextAreaConversa;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField jTextCampoMsg;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void notificaMensagemRespostaServidor(String responseDoServer) {}
+
+    @Override
+    public void exibeInfoClienteLogado() {}
+
+    @Override
+    public void atualizarListaContato() {}
+
+    @Override
+    public void exibeUserBuscado(String nome, String email) {}
+
+    @Override
+    public int escolhaAdicionar() {return -1;}
+
+    @Override
+    public void exibeMsg(String msg) {}
+
+    @Override
+    public void exibeMsgVindaCliente(String msg) {
+        this.msgTela = this.jTextAreaConversa.getText();
+        if(msg != null){
+            this.msgTela +=  "------------------------------\n"+this.cliContato.getNome()+ " diz: \n"+msg+"\n";
+            this.jTextAreaConversa.setText(msgTela);
+        }
+    }
+
+    @Override
+    public void abreChat(Cliente cliContato) {}
 }

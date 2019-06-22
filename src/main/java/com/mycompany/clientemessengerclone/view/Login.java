@@ -7,6 +7,7 @@ package com.mycompany.clientemessengerclone.view;
 
 import com.mycompany.clientemessengerclone.controller.ComunicacaoServidorImpl;
 import com.mycompany.clientemessengerclone.controller.Observador;
+import com.mycompany.clientemessengerclone.model.Cliente;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -273,5 +274,11 @@ public class Login extends javax.swing.JFrame implements Observador {
 
     @Override
     public void exibeMsg(String msg) {}
+
+    @Override
+    public void exibeMsgVindaCliente(String msg) {}
+
+    @Override
+    public void abreChat(Cliente cliContato) {}
 
 }

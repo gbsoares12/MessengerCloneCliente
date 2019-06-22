@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -26,6 +27,7 @@ public class MenuPrincipal extends javax.swing.JFrame implements Observador {
     private static MenuPrincipal instance;
     private ComunicacaoServidorImpl controller;
     private SessaoCliente clienteSessao;
+    private List<TelaChat> listaDeChatsAbertos = new ArrayList<>();
 
     public static MenuPrincipal getInstance() {
         if (instance == null) {
@@ -326,6 +328,7 @@ public class MenuPrincipal extends javax.swing.JFrame implements Observador {
         if ((clienteSelecionado != null) && clienteSelecionado.isStatus()) {
             TelaChat telaChat = new TelaChat(clienteSelecionado);
             telaChat.setVisible(true);
+
         } else {
             JOptionPane.showMessageDialog(null, "O contato está offline, tente outro!");
         }
@@ -445,6 +448,22 @@ public class MenuPrincipal extends javax.swing.JFrame implements Observador {
     @Override
     public void exibeMsg(String msg) {
         JOptionPane.showMessageDialog(null, msg);
+    }
+
+    @Override
+    public void exibeMsgVindaCliente(String msg) {
+    }
+
+    @Override
+    public void abreChat(Cliente cliContato) {
+        TelaChat telaChat = null;
+        for (TelaChat listaDeChatsAberto : listaDeChatsAbertos) {
+            if (!listaDeChatsAberto.getCliContato().getEmail().equalsIgnoreCase(cliContato.getEmail())) {
+                telaChat = new TelaChat(cliContato);
+                telaChat.setVisible(true);
+                listaDeChatsAbertos.add(telaChat);
+            }
+        }
     }
 
 }

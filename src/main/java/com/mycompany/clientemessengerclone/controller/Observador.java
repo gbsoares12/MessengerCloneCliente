@@ -5,6 +5,8 @@
  */
 package com.mycompany.clientemessengerclone.controller;
 
+import com.mycompany.clientemessengerclone.model.Cliente;
+
 /**
  *
  * @author Gabriel Soares
@@ -17,4 +19,7 @@ public interface Observador {
     public void exibeUserBuscado(String nome, String email);
     public int escolhaAdicionar();
     public void exibeMsg(String msg);
+    public void exibeMsgVindaCliente(String msg);
+    public void abreChat(Cliente cliContato);
+    
 }

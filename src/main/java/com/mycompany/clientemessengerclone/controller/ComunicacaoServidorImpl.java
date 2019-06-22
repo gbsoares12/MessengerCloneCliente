@@ -8,11 +8,12 @@ package com.mycompany.clientemessengerclone.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.mycompany.clientemessengerclone.model.Cliente;
+import com.mycompany.clientemessengerclone.model.EnviaMensagemToCliente;
+import com.mycompany.clientemessengerclone.model.ServidorCliente;
 import com.mycompany.clientemessengerclone.model.ServidorInfo;
 import com.mycompany.clientemessengerclone.model.SessaoCliente;
 import com.mycompany.clientemessengerclone.model.VerificadorConexaoCliente;
 import com.mycompany.clientemessengerclone.utils.Desconectar;
-import com.mycompany.clientemessengerclone.view.Login;
 import com.mycompany.clientemessengerclone.view.MenuPrincipal;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +22,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -32,9 +34,9 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
     private SessaoCliente sessaoAtual = SessaoCliente.getInstance();
     private ServidorInfo servInfo = ServidorInfo.getInstance();
     private List<Observador> observadores = new ArrayList<>();
-    private int countVerificadorDoCliente;
     private VerificadorConexaoCliente verificadorCliente;
     private static ComunicacaoServidorImpl instance;//Padrão Singleton
+    private ServidorCliente servidorCliente;
 
     public synchronized static ComunicacaoServidorImpl getInstance() {//Padrão Singleton
         if (instance == null) {
@@ -82,6 +84,10 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
             if (!primeiraLinha.equalsIgnoreCase("503")) {
                 Cliente cli = gson.fromJson(primeiraLinha, Cliente.class);
                 this.sessaoAtual.setCliente(cli);
+
+                //inicia o servidor
+                this.servidorCliente = new ServidorCliente(cli.getPorta());
+
                 exibeClienteInfoLogado();
                 atualizaListaContato();
 
@@ -92,6 +98,7 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
                         verificadorCliente.start();
                     }
                 }
+                servidorCliente.start();
                 return true;
             } else {
                 exibeClienteLogadoResponse("Sua conta já está online!");
@@ -159,12 +166,13 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
             out.println(gson.toJson(sessaoAtual.getCliente()));
             out.println("fimsair");
             this.verificadorCliente.setUserOnline(false);
-
+            this.servidorCliente.setUserOnline(false);
             in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line = "";
             line = in.readLine();
             if (line.equalsIgnoreCase("200")) {
                 this.sessaoAtual.setCliente(null);
+
                 exibeMsg("Logout feito com sucesso!");
             } else if (line.equalsIgnoreCase("500")) {
                 exibeMsg("Erro no servidor!");
@@ -234,7 +242,7 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
 
     public void exibeMsg(String msg) {
         for (Observador obs : observadores) {
-                obs.exibeMsg(msg);
+            obs.exibeMsg(msg);
         }
     }
 
@@ -394,5 +402,31 @@ public class ComunicacaoServidorImpl implements ComunicacaoServidorController {
         } finally {
             Desconectar.fechar(in, out, conn);
         }
+    }
+
+    public void exibeMsgVindaCliente(String msgChat) {
+        for (Observador obs : observadores) {
+            obs.exibeMsgVindaCliente(msgChat);
+        }
+    }
+
+    public void abreChat(Cliente cliContato) {
+        for (Observador obs : observadores) {
+            obs.abreChat(cliContato);
+        }
+    }
+
+    public void enviarMsg(Cliente contato, String msgToContato) {
+        
+        try {
+            Socket conn = new Socket(contato.getIp(), contato.getPorta());
+
+            EnviaMensagemToCliente enviarMsg = new EnviaMensagemToCliente(conn, msgToContato);
+            enviarMsg.start();
+
+        } catch (IOException ex) {
+            Logger.getLogger(ComunicacaoServidorImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 }
