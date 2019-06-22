@@ -408,27 +408,27 @@ public class MenuPrincipal extends javax.swing.JFrame implements Observador {
 
     @Override
     public void atualizarListaContato() {
-        DefaultListModel listModel = new DefaultListModel();
-        List<String> listaContatoString = new ArrayList<>();
-        List<Cliente> listaContatoCliente = this.clienteSessao.getCliente().getListaContatos();
-
-        String status = "/Status: ";
-        for (Cliente cliente : listaContatoCliente) {
-            String offline = "<html>" + "Nome: " + cliente.getNome() + " /Email: " + cliente.getEmail() + " /Status: <font color=" + "#FF0000" + ">Offline</font></html>";
-            String online = "<html>" + "Nome: " + cliente.getNome() + " /Email: " + cliente.getEmail() + " /Status: <font color=" + "#7CFC00" + ">Online</font></html>";
-            String contatoListaString = "";
-            if (cliente.isStatus()) {
-                contatoListaString = online;
-            } else {
-                contatoListaString = offline;
+        if (this.clienteSessao.getCliente() != null) {
+            DefaultListModel listModel = new DefaultListModel();
+            List<String> listaContatoString = new ArrayList<>();
+            List<Cliente> listaContatoCliente = this.clienteSessao.getCliente().getListaContatos();
+            for (Cliente cliente : listaContatoCliente) {
+                String offline = "<html>" + "Nome: " + cliente.getNome() + " /Email: " + cliente.getEmail() + " /Status: <font color=" + "#FF0000" + ">Offline</font></html>";
+                String online = "<html>" + "Nome: " + cliente.getNome() + " /Email: " + cliente.getEmail() + " /Status: <font color=" + "#7CFC00" + ">Online</font></html>";
+                String contatoListaString = "";
+                if (cliente.isStatus()) {
+                    contatoListaString = online;
+                } else {
+                    contatoListaString = offline;
+                }
+                listaContatoString.add(contatoListaString);
             }
-            listaContatoString.add(contatoListaString);
-        }
 
-        for (String percorrer : listaContatoString) {
-            listModel.addElement(percorrer);
+            for (String percorrer : listaContatoString) {
+                listModel.addElement(percorrer);
+            }
+            jListContatos.setModel(listModel);
         }
-        jListContatos.setModel(listModel);
     }
 
     @Override

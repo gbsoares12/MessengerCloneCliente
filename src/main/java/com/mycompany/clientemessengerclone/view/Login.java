@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
 public class Login extends javax.swing.JFrame implements Observador {
 
     private static Login instance;
-    private ComunicacaoServidorImpl controller;
+    private ComunicacaoServidorImpl controller = ComunicacaoServidorImpl.getInstance();
 
     public static Login getInstance() {
         if (instance == null) {
@@ -37,7 +37,6 @@ public class Login extends javax.swing.JFrame implements Observador {
     public Login() {
         initComponents();
         this.setLocationRelativeTo(null);
-        this.controller = ComunicacaoServidorImpl.getInstance();
         this.controller.addObservador(this);
     }
 

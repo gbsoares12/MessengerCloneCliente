@@ -19,7 +19,16 @@ public class VerificadorConexaoCliente extends Thread {
 
     private int countVerificador = 0;
     private ComunicacaoServidorImpl controller;
+    private boolean userOnline = true;
 
+    public boolean isUserOnline() {
+        return userOnline;
+    }
+
+    public void setUserOnline(boolean userOnline) {
+        this.userOnline = userOnline;
+    }
+    
     public VerificadorConexaoCliente() {
         this.controller = ComunicacaoServidorImpl.getInstance();
     }
@@ -35,7 +44,7 @@ public class VerificadorConexaoCliente extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (userOnline) {
             // Caso haja alguém conectado o numero de msg de atualização tem que ser a mesma do countVerificador.
             this.countVerificador++;
             System.out.println("O count de tempo de verificação do cliente está em: " + this.countVerificador);
